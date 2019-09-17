@@ -45,6 +45,15 @@ public class FFmpeg implements FFmpegInterface {
                 Log.i("Loading FFmpeg for armv7 CPU");
                 cpuArchNameFromAssets = "armeabi-v7a";
                 break;
+            case ARMv8:
+                Log.i("Loading FFmpeg for arm64-v8a CPU");
+                cpuArchNameFromAssets = "arm64-v8a";
+                break;
+
+            case x86_64:
+                Log.i("Loading FFmpeg for x86_64 CPU");
+                cpuArchNameFromAssets = "x86_64";
+                break;
             case NONE:
                 throw new FFmpegNotSupportedException("Device not supported");
         }
@@ -59,14 +68,14 @@ public class FFmpeg implements FFmpegInterface {
 
     @Override
     public void execute(Map<String, String> environvenmentVars, String[] cmd, FFmpegExecuteResponseHandler ffmpegExecuteResponseHandler) throws FFmpegCommandAlreadyRunningException {
-        if (ffmpegExecuteAsyncTask != null && !ffmpegExecuteAsyncTask.isProcessCompleted()) {
+        /*if (ffmpegExecuteAsyncTask != null && !ffmpegExecuteAsyncTask.isProcessCompleted()) {
             throw new FFmpegCommandAlreadyRunningException("FFmpeg command is already running, you are only allowed to run single command at a time");
-        }
+        }*/
         if (cmd.length != 0) {
             String[] ffmpegBinary = new String[] { FileUtils.getFFmpeg(context, environvenmentVars) };
             String[] command = concatenate(ffmpegBinary, cmd);
             ffmpegExecuteAsyncTask = new FFmpegExecuteAsyncTask(command , timeout, ffmpegExecuteResponseHandler);
-            ffmpegExecuteAsyncTask.execute();
+            ffmpegExecuteAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             throw new IllegalArgumentException("shell command cannot be empty");
         }
